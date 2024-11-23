@@ -42,12 +42,6 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.vpc.id
 
-  #Allows internet access to the vpc and subnets
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-
   tags = {
     Name = var.public_rt_name
   }
@@ -62,9 +56,11 @@ resource "aws_route_table" "private_rt" {
 }
 
 #ROUTE TABLES AND IGW ASSOCIATION
-resource "aws_route_table_association" "public_subnet_igw_association" {
-  route_table_id = aws_route_table.public_rt.id
-  gateway_id     = aws_internet_gateway.igw.id
+resource "aws_route" "r" {
+  route_table_id              = aws_route_table.public_rt.id
+  #Allows public internet access
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.igw.id
 }
 
 resource "aws_route_table_association" "public_subnet_association" {
