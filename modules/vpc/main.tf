@@ -12,6 +12,7 @@ resource "aws_subnet" "public_subnets" {
   count      = length(var.public_subnets_cidr)
   vpc_id     = aws_vpc.vpc.id
   cidr_block = var.public_subnets_cidr[count.index]
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "public-subnet-${count.index + 1}"
@@ -28,9 +29,24 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
+#INTERNET GATEWAY CREATION
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+
 #ROUTE TABLES CREATION
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.vpc.id
+
+  #Allows internet access to the vpc and subnets
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
 
   tags = {
     Name = var.public_rt_name
@@ -42,15 +58,6 @@ resource "aws_route_table" "private_rt" {
 
   tags = {
     Name = var.private_rt_name
-  }
-}
-
-#INTERNET GATEWAY CREATION
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
-
-  tags = {
-    Name = "main-igw"
   }
 }
 
