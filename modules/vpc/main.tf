@@ -7,6 +7,26 @@ resource "aws_vpc" "vpc" {
   }
 }
 
+#SECURITY GROUPS
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow-ssh"
+  description = "Allow SSH inbound traffic and all outbound traffic"
+  vpc_id      = aws_vpc.vpc.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ssh_ingress_rule" {
+  security_group_id = aws_security_group.allow_ssh.id
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 22
+  ip_protocol = "tcp"
+}
+
+resource "aws_vpc_security_group_egress_rule" "ssh_egress_rule" {
+  security_group_id = aws_security_group.allow_ssh.id
+  cidr_ipv4   = "0.0.0.0/0"
+  ip_protocol = "tcp"
+}
+
 #SUBNETS CREATION
 resource "aws_subnet" "public_subnets" {
   count      = length(var.public_subnets_cidr)
