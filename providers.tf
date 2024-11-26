@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+    organization = "angelvargass-tf-org"
+    workspaces {
+      tags = ["TF-AWS-VPCs"]
+    }
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
